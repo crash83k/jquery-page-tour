@@ -115,25 +115,9 @@
 
 /** shadows **/
 .tour_shade {
-    /*opacity: 0.8;*/
+    overflow: hidden;
+    transition: all 0.75s;
+    transition-timing-function: ease-in-out;
     position: absolute;
-    /*background-color: black;*/
     border-radius: 5px;
 }
-
-/*.tour_shade_left {*/
-    /*left: 0;*/
-/*}*/
-
-/*.tour_shade_right {*/
-    /*right: 0;*/
-/*}*/
-
-/*.tour_shade_top {*/
-    /*top: 0;*/
-    /*width: 100%;*/
-/*}*/
-
-/*.tour_shade_bottom {*/
-    /*width: 100%;*/
-/*}*/

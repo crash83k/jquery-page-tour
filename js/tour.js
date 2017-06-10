@@ -138,11 +138,11 @@
 
   function shadowElement() {
     elements.shadow.css({
-      height : dims[ 'elHeight' ] + _o.generalPadding,
-      width : dims[ 'elWidth' ] - _o.generalPadding,
+      height : dims[ 'elHeight' ] + (_o.generalPadding * 4),
+      width : dims[ 'elWidth' ] + (_o.generalPadding * 4),
       left : dims[ 'elLeft' ] - (_o.generalPadding * 2),
       top : dims[ 'elTop' ] - (_o.generalPadding * 2),
-      'box-shadow' : '0px 0px 4px 5px rgba(0,0,0,0.8) inset, 0px 0px 0px 2000px rgba(0,0,0,0.8)'
+      'box-shadow' : '0px 0px 4px 5px rgba(0,0,0,0.8) inset, 0px 0px 5px 3000px rgba(0,0,0,0.8)'
     });
   }
 
@@ -201,7 +201,7 @@
 
     $('html, body').animate({
       scrollTop : offset > title ? offset : title
-    }, 600);
+    }, 200);
   }
 
   function updateTourTitle(title) {
