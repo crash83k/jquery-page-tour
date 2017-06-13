@@ -67,8 +67,8 @@
     medTarg.append(smTarg);
     elements.targets.append(medTarg);
 
-    elements.prevBtn.on('click', next);
-    elements.nextBtn.on('click', prev);
+    elements.prevBtn.on('click', prev);
+    elements.nextBtn.on('click', next);
     elements.exit.on('click', exit);
     elements.description.append(elements.descriptionText);
     elements.controls.append(elements.prevBtn, elements.nextBtn, elements.exit);
@@ -152,6 +152,12 @@
       .each(function () {
         doms.push($(this));
       });
+
+    doms.sort(function (d1, d2) {
+      var d1i = parseInt(d1.attr('data-' + _o.prefix + '-index') || 9999);
+      var d2i = parseInt(d2.attr('data-' + _o.prefix + '-index') || 9999);
+      return d1i - d2i;
+    });
   }
 
   function flowTargets() {
