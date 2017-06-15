@@ -84,12 +84,6 @@
       .append(elements.shadow);
     elements.body.prepend(elements.tour);
 
-    discoverDoms();
-
-    if (doms.length === 0) {
-      console.log("No tour elements.");
-    }
-
     window[ _o.thisControl ] = {
       rediscover : discoverDoms,
       next : next,
@@ -109,8 +103,14 @@
   }
 
   function open() {
-    elements.tour.show();
-    run()
+    discoverDoms();
+
+    if (doms.length === 0) {
+      console.log("No tour elements.");
+    } else {
+      elements.tour.show();
+      run();
+    }
   }
 
   function run() {
@@ -147,6 +147,9 @@
   }
 
   function discoverDoms() {
+    // Rediscover means we're starting over
+    elId = 0;
+
     doms = [];
     $('[data-' + _o.prefix + '-title], [data-' + _o.prefix + '-description]')
       .each(function () {
@@ -324,7 +327,6 @@
   $.fn.textWidth = function () {
     var org = $(this);
     var html = $('<span>' + org.html() + '</span>');
-    console.log(org.css('font-size'));
     html.css({
       'font-family' : org.css('font-family'),
       'font-size' : org.css('font-size'),

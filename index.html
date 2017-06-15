@@ -22,37 +22,43 @@
 
 <h1>Responsive Web Design Demo</h1>
 
-<div class="city">
-    <h2>London</h2>
-    <p>London is the capital city of England.</p>
-    <p>It is the most populous city in the United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
-    <a href="#" data-tour-title="Link Button" class="btn btn-link">Boom!</a>
-</div>
+<div id="locations">
+    <div class="city">
+        <h2>London</h2>
+        <p>London is the capital city of England.</p>
+        <p>It is the most populous city in the United Kingdom, with a metropolitan area of over 13 million
+            inhabitants.</p>
+        <a href="#" data-tour-title="Link Button" class="btn btn-link">Boom!</a>
+    </div>
 
-<div class="city" data-tour-index="0" data-tour-title="Card Type (0)" data-tour-description="A card will usually be one of multiple similar type items on a page.">
-    <h2>Paris</h2>
-    <p>Paris is the capital of France.</p>
-    <p>The Paris area is one of the largest population centers in Europe, with more than 12 million inhabitants.</p>
-    <a href="#" data-tour-index="1" data-tour-title="Primary Button (1)" data-tour-description="I need a longer description for what this thing does." class="btn btn-primary">Boomer!</a>
-</div>
+    <div class="city" data-tour-index="0" data-tour-title="Card Type (0)" data-tour-description="A card will usually be one of multiple similar type items on a page.">
+        <h2>Paris</h2>
+        <p>Paris is the capital of France.</p>
+        <p>The Paris area is one of the largest population centers in Europe, with more than 12 million inhabitants.</p>
+        <a href="#" data-tour-index="1" data-tour-title="Primary Button (1)" data-tour-description="I need a longer description for what this thing does." class="btn btn-primary">Boomer!</a>
+    </div>
 
-<div class="city">
-    <h2 data-tour-title="Super Title!" data-tour-description="Obviously this is a title.">Tokyo</h2>
-    <p>Tokyo is the capital of Japan.</p>
-    <p>It is the center of the Greater Tokyo Area, and the most populous metropolitan area in the world.</p>
-    <a href="#" class="btn btn-default">Boomie!</a>
-</div>
+    <div class="city">
+        <h2 data-tour-title="Super Title!" data-tour-description="Obviously this is a title.">Tokyo</h2>
+        <p>Tokyo is the capital of Japan.</p>
+        <p>It is the center of the Greater Tokyo Area, and the most populous metropolitan area in the world.</p>
+        <a href="#" class="btn btn-default">Boomie!</a>
+    </div>
 
-<div class="city">
-    <h2>New York</h2>
-    <p>The City of New York is the most populous city in the United States.</p>
-    <p>New York is an important center for international diplomacy and has been described as the cultural and financial
-        capital of the world.</p>
-    <a href="#" data-tour-title="Default Button (2)" data-tour-index="2" data-tour-description="This is used the most." class="btn btn-default">Boomieist!</a>
+    <div class="city">
+        <h2>New York</h2>
+        <p>The City of New York is the most populous city in the United States.</p>
+        <p>New York is an important center for international diplomacy and has been described as the cultural and
+            financial
+            capital of the world.</p>
+        <a href="#" data-tour-title="Default Button (2)" data-tour-index="2" data-tour-description="This is used the most." class="btn btn-default">Boomieist!</a>
+    </div>
 </div>
 
 <div>
     <button id="start-tour">Start Tour</button>
+    <br/>
+    <button id="add-city">Add City</button>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"
@@ -62,6 +68,40 @@
 <script src="js/tour.js"></script>
 <script>
   $('#start-tour').on('click', PageTour.open);
+  $('#add-city').on('click', function () {
+    if (locs.length > 0) {
+      var loc = locs.shift();
+      var city = $('<div></div>', { 'class' : 'city' });
+      city.append(
+        $('<h2></h2>', { html : loc.loc }),
+        $('<p></p>', { html : loc.p1 }),
+        $('<p></p>', {
+          html : loc.p2,
+          'data-tour-title' : 'City Description',
+          'data-tour-Description' : 'This box shows the description of the city.',
+        })
+      );
+      $('#locations').append(city)
+    }
+  });
+</script>
+
+<script>
+  // Test after load adding new elements.
+  var locs = [
+    {
+      loc : 'Emerald City',
+      p1 : 'Emerald City is located somewhere over the rainbow.',
+      p2 : 'Emerald  has munchkins, witches, and talking scarecrows. I wouldn\'t recommend it.'
+    },
+    {
+      loc : 'Wonderland',
+      p1 : 'Wonderland is situated behind a mirror.',
+      p2 : 'If you ever wondered what life would be like on a permanent acid trip, Wonderland is for you.'
+    }
+  ]
+
+
 </script>
 
 </body>
