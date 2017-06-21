@@ -58,10 +58,10 @@ Items without an index are actually defaulted to an index of `9999`.
 #### Programmatically Controlling the Tour
 
 The tour assigns a window-scoped dict object as `PageTour` at initialization. The `PageTour` object has 4 publicly accessible methods:
- - .open() - Opens the tour. If the tour has previously been opened, it will open from where it was left off.
- - .next() - Moves the tour on to the next tour item.
- - .prev() - Moves the tour back to the previous tour item.
- - .exit() - Closes the tour.
+ - `.open()` - Opens the tour. If the tour has previously been opened, it will open from where it was left off.
+ - `.next()` - Moves the tour on to the next tour item.
+ - `.prev()` - Moves the tour back to the previous tour item.
+ - `.exit()` - Closes the tour.
  
 The only method completely necessary for tour operation is the `.open()` method. This starts the tour.
 However, controls to proceed through the tour and exit the tour are displayed in the tour.
