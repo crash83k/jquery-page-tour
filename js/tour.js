@@ -238,12 +238,11 @@
     desc.html(text); // Set the description.
   }
 
+  /**
+   * Calculates out all the X/Y locations for where to put the title and the description/controls
+   * base on the coordinates and dimensions of the show element and the tour elements.
+   */
   function doTourCalculations() {
-    /*
-     * Calculates out all the X/Y locations for where to put the title and the description/controls
-     * base on the coordinates and dimensions of the show element and the tour elements.
-     */
-
     // Get all the height/width and X/Y coordinates of all the elements involved with the tour
     // including the window viewport dimensions.
     var titleIs;
