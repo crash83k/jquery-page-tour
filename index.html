@@ -2,6 +2,7 @@
 <html lang="en-us">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Tour Demo</title>
     <style>
         .city {
             float: left;
@@ -12,16 +13,17 @@
             border: 1px solid black;
         }
     </style>
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
           crossorigin="anonymous">
-    <link href="css/tour.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 
-<h1>Responsive Web Design Demo</h1>
+<!--/// Start of HTML Example ///-->
 
+<h1 data-tour-description="This is the title of the page." data-tour-index="-1">Responsive Web Design Demo</h1>
+<h3>Reference to the original responsive design demo
+    <a href="https://www.w3schools.com/html/html_responsive.asp">here</a>.</h3>
 <div id="locations">
     <div class="city">
         <h2>London</h2>
@@ -31,11 +33,12 @@
         <a href="#" data-tour-title="Link Button" class="btn btn-link">Boom!</a>
     </div>
 
-    <div class="city" data-tour-index="0" data-tour-title="Card Type (0)" data-tour-description="A card will usually be one of multiple similar type items on a page.">
+    <!-- I'm using index -10 here to show this item first. -->
+    <div class="city" data-tour-index="-10" data-tour-title="Card Type" data-tour-description="A card will usually be one of multiple similar type items on a page.">
         <h2>Paris</h2>
         <p>Paris is the capital of France.</p>
         <p>The Paris area is one of the largest population centers in Europe, with more than 12 million inhabitants.</p>
-        <a href="#" data-tour-index="1" data-tour-title="Primary Button (1)" data-tour-description="I need a longer description for what this thing does." class="btn btn-primary">Boomer!</a>
+        <a href="#" data-tour-index="1" data-tour-title="Primary Button" data-tour-description="I need a longer description for what this thing does." class="btn btn-primary">Boomer!</a>
     </div>
 
     <div class="city">
@@ -51,22 +54,43 @@
         <p>New York is an important center for international diplomacy and has been described as the cultural and
             financial
             capital of the world.</p>
-        <a href="#" data-tour-title="Default Button (2)" data-tour-index="2" data-tour-description="This is used the most." class="btn btn-default">Boomieist!</a>
+        <a href="#" data-tour-title="Default Button" data-tour-index="2" data-tour-description="This is used the most." class="btn btn-default">Boomieist!</a>
     </div>
 </div>
 
-<div>
-    <button id="start-tour">Start Tour</button>
-    <br/>
-    <button id="add-city">Add City</button>
+<div style="clear:both; padding:20px; text-align: center">
+    <button id="start-tour" class="btn btn-primary">Start Tour</button>
+    &nbsp;
+    <button id="add-city" class="btn btn-default">Add City</button>
 </div>
 
+<!--/// End of HTML Example ///-->
+
+
+<!--/// Start of JavaScript Example ///-->
+
+<!-- Include jQuery 3.x -->
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
 
+<!-- Include the page tour library -->
 <script src="js/tour.js"></script>
+
+<!-- Instantiate the page tour library -->
 <script>
+  // Instantiate the actual page tour object.
+  var PageTour;
+  try {
+    PageTour = $.fn.PageTour();
+  } catch (e) {
+    console.error('Cannot start page tour: ', e);
+  }
+</script>
+
+<!-- Just some extra testing functionality -->
+<script>
+  // Script to add dynamic "cities" for testing.
   $('#start-tour').on('click', PageTour.open);
   $('#add-city').on('click', function () {
     if (locs.length > 0) {
@@ -78,15 +102,13 @@
         $('<p></p>', {
           html : loc.p2,
           'data-tour-title' : 'City Description',
-          'data-tour-Description' : 'This box shows the description of the city.',
+          'data-tour-Description' : 'This box shows the description of the city.'
         })
       );
       $('#locations').append(city)
     }
   });
-</script>
 
-<script>
   // Test after load adding new elements.
   var locs = [
     {
@@ -99,10 +121,10 @@
       p1 : 'Wonderland is situated behind a mirror.',
       p2 : 'If you ever wondered what life would be like on a permanent acid trip, Wonderland is for you.'
     }
-  ]
-
-
+  ];
 </script>
+
+<!--/// End of JavaScript Example ///-->
 
 </body>
 </html>

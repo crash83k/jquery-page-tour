@@ -1,68 +1,71 @@
-(function (opts) {
-
-  var _o = $.extend({
-    prefix : 'tour',
-    horizontalPadding : 20,
-    verticalPadding : 5,
-    generalPadding : 5,
-    nextText : 'Next',
-    prevText : 'Previous',
-    exitText : 'Exit',
-    thisControl : 'PageTour'
-  }, opts);
-
-  var dims = {};
-  var doms = [];
-  var elId = 0;
-  var resizeTimer;
-  var elements = {
-    body : $('body'),
-    overlay : $('<div></div>', { id : _o.prefix + '_overlay' }),
-    tour : $('<div></div>', { id : _o.prefix + '_tour' }),
-    title : $('<div></div>', {
-      class : _o.prefix + '_title ' + _o.prefix + '_box_transition',
-    }),
-    description : $('<div></div>', {
-      class : _o.prefix + '_description ' + _o.prefix + '_box_transition',
-    }),
-    descriptionText : $('<span></span>'),
-    controls : $('<div></div>', {
-      class : _o.prefix + '_controls'
-    }),
-    exit : $('<a></a>', {
-      class : 'btn btn-danger',
-      html : _o.exitText,
-
-    }),
-    targets : $('<div></div>', {
-      id : _o.prefix + '_targets',
-      class : _o.prefix + '_element_transition ' + _o.prefix + '_glow ' + _o.prefix + '_animation_delay2'
-    }),
-    nextBtn : $('<a></a>', {
-      html : _o.nextText,
-      class : 'btn btn-primary'
-    }),
-    prevBtn : $('<a></a>', {
-      html : _o.prevText,
-      class : 'btn btn-default'
-    }),
-    shadow : $('<div></div>', { class : _o.prefix + '_shade' })
-  };
+$.fn.PageTour = function (opts) {
+  var
+    _o = $.extend({
+      prefix : 'tour',
+      horizontalPadding : 20,
+      verticalPadding : 5,
+      generalPadding : 5,
+      nextText : 'Next',
+      prevText : 'Previous',
+      exitText : 'Exit',
+      nextClass : 'btn btn-primary',
+      prevClass : 'btn btn-default',
+      exitClass : 'btn btn-danger',
+      defaultIndex : 9999
+    }, opts),
+    dims = {},
+    doms = [],
+    elId = 0,
+    resizeTimer,
+    elements = {
+      body : $('body'),
+      style : $('<style></style>'),
+      overlay : $('<div></div>', { id : _o.prefix + '_overlay' }),
+      tour : $('<div></div>', { id : _o.prefix + '_tour' }),
+      title : $('<div></div>', {
+        class : _o.prefix + '_title ' + _o.prefix + '_box_transition'
+      }),
+      description : $('<div></div>', {
+        class : _o.prefix + '_description ' + _o.prefix + '_box_transition'
+      }),
+      descriptionText : $('<span></span>'),
+      controls : $('<div></div>', {
+        class : _o.prefix + '_controls'
+      }),
+      targets : $('<div></div>', {
+        id : _o.prefix + '_targets',
+        class : _o.prefix + '_element_transition ' + _o.prefix + '_glow ' + _o.prefix + '_animation_delay2'
+      }),
+      nextBtn : $('<a></a>', {
+        html : _o.nextText,
+        class : _o.nextClass
+      }),
+      prevBtn : $('<a></a>', {
+        html : _o.prevText,
+        class : _o.prevClass
+      }),
+      exit : $('<a></a>', {
+        html : _o.exitText,
+        class : _o.exitClass
+      }),
+      shadow : $('<div></div>', { class : _o.prefix + '_shade' })
+    };
 
   function __init() {
-    var medTarg = $('<div></div>', {
-      class : _o.prefix + '_target ' +
-      _o.prefix + '_target_medium ' +
-      _o.prefix + '_element_transition ' +
-      _o.prefix + '_glow ' +
-      _o.prefix + '_animation_delay1'
-    });
-    var smTarg = $('<div></div>', {
-      class : _o.prefix + '_target ' +
-      _o.prefix + '_target_small ' +
-      _o.prefix + '_element_transition ' +
-      _o.prefix + '_glow'
-    });
+    var
+      medTarg = $('<div></div>', {
+        class : _o.prefix + '_target ' +
+        _o.prefix + '_target_medium ' +
+        _o.prefix + '_element_transition ' +
+        _o.prefix + '_glow ' +
+        _o.prefix + '_animation_delay1'
+      }),
+      smTarg = $('<div></div>', {
+        class : _o.prefix + '_target ' +
+        _o.prefix + '_target_small ' +
+        _o.prefix + '_element_transition ' +
+        _o.prefix + '_glow'
+      });
 
     medTarg.append(smTarg);
     elements.targets.append(medTarg);
@@ -70,27 +73,32 @@
     elements.prevBtn.on('click', prev);
     elements.nextBtn.on('click', next);
     elements.exit.on('click', exit);
-    elements.description.append(elements.descriptionText);
-    elements.controls.append(elements.prevBtn, elements.nextBtn, elements.exit);
+
+    elements.description
+      .append(elements.descriptionText);
+
+    elements.controls
+      .append(
+        elements.prevBtn,
+        elements.nextBtn,
+        elements.exit
+      );
+
     elements.tour
+      .css({ display : 'none', top : 0, left : 0 })
       .append(
         elements.overlay,
         elements.title,
         elements.description,
         elements.controls,
         elements.targets
-      ).css({ 'display' : 'none', 'top' : 0, 'left' : 0 });
-    elements.overlay.css({ 'position' : 'absolute', 'top' : 0, 'left' : 0 })
-      .append(elements.shadow);
-    elements.body.prepend(elements.tour);
+      );
 
-    window[ _o.thisControl ] = {
-      rediscover : discoverDoms,
-      next : next,
-      prev : prev,
-      open : open,
-      exit : exit
-    };
+    elements.overlay
+      .css({ position : 'absolute', top : 0, left : 0 })
+      .append(elements.shadow);
+
+    elements.body.prepend(elements.tour);
 
     $(window).resize(function () {
       clearTimeout(resizeTimer);
@@ -100,6 +108,17 @@
         }, 100);
       }
     });
+
+    setupStyle();
+    elements.body.append(elements.style);
+
+    return {
+      rediscover : discoverDoms,
+      next : next,
+      prev : prev,
+      open : open,
+      exit : exit
+    };
   }
 
   function open() {
@@ -157,8 +176,10 @@
       });
 
     doms.sort(function (d1, d2) {
-      var d1i = parseInt(d1.attr('data-' + _o.prefix + '-index') || 9999);
-      var d2i = parseInt(d2.attr('data-' + _o.prefix + '-index') || 9999);
+      var
+        d1i = parseInt(d1.attr('data-' + _o.prefix + '-index') || _o.defaultIndex),
+        d2i = parseInt(d2.attr('data-' + _o.prefix + '-index') || _o.defaultIndex);
+
       return d1i - d2i;
     });
   }
@@ -176,11 +197,12 @@
     if (sqSize < 100) sqSize = 100;
 
     // Find the X/Y to place the target box
-    var myX = dims[ 'elCenterX' ] - (sqSize / 2);
-    var myY = dims[ 'elCenterY' ] - (sqSize / 2);
+    var
+      myX = dims[ 'elCenterX' ] - (sqSize / 2),
+      myY = dims[ 'elCenterY' ] - (sqSize / 2);
 
     // Animate the targets to the correct size and coordinates.
-    $('#tour_targets').css({
+    $('#' + _o.prefix + '_targets').css({
       width : sqSize,
       height : sqSize,
       left : myX - (_o.horizontalPadding / 2) + _o.generalPadding,
@@ -205,8 +227,9 @@
       'top' : dims[ 'desc_y' ] + dims[ 'descHeight' ] - _o.verticalPadding
     });
 
-    var offset = doms[ elId ].offset().top - 120;
-    var title = dims[ 'title_y' ] - 10;
+    var
+      offset = doms[ elId ].offset().top - 120,
+      title = dims[ 'title_y' ] - 10;
 
     $('html, body').animate({
       scrollTop : offset > title ? offset : title
@@ -216,24 +239,26 @@
   function updateTourTitle(title) {
     var div = elements.title; // Get the title object.
 
-    if (title === '') div.hide();
-    else div.show();
+    if (title === '')
+      div.hide();
+    else
+      div.show();
 
     // Update the title of the tour.
     div.html(title); // Set the title.
-    var newWidth = div.textWidth(); // Figure out the width of the title based on CSS font size and the text hit box size.
-    div.width(newWidth * 2.5); // Set the width of the title for reflow calculation.
+    div.width(textWidth.apply(div) * 2.5); // Set the width of the title for reflow calculation.
   }
 
   function updateTourDesc(text) {
     var div = elements.description; // Get the parent description object.
 
-    if (text === '') div.hide();
-    else div.show();
+    if (text === '')
+      div.hide();
+    else
+      div.show();
 
     // Update the description of the tour element.
     var desc = div.children('span').first(); // Get the description span object.
-    //var controls = div.children('.tour_controls'); // in the future there may be a reason to update the controls.
 
     desc.html(text); // Set the description.
   }
@@ -245,11 +270,13 @@
   function doTourCalculations() {
     // Get all the height/width and X/Y coordinates of all the elements involved with the tour
     // including the window viewport dimensions.
-    var titleIs;
-    var titleHeight = parseInt(elements.title.outerHeight());
-    var titleWidth = parseInt(elements.title.outerWidth());
-    var descHeight = parseInt(elements.description.outerHeight());
-    var descWidth = parseInt(elements.description.outerWidth());
+    var
+      titleIs,
+      titleHeight = parseInt(elements.title.outerHeight()),
+      titleWidth = parseInt(elements.title.outerWidth()),
+      descHeight = parseInt(elements.description.outerHeight()),
+      descWidth = parseInt(elements.description.outerWidth());
+
     dims[ 'descHeight' ] = descHeight;
     dims[ 'winWidth' ] = parseInt($(window).outerWidth());
     dims[ 'winHeight' ] = parseInt($(window).outerHeight());
@@ -323,7 +350,29 @@
     }
   }
 
-  $.fn.textWidth = function () {
+  function setupStyle() {
+    elements.style.html(
+      '#' + _o.prefix + '_tour, #' + _o.prefix + '_overlay { height: 100vh; width: 100%; }\n' +
+      '#' + _o.prefix + '_tour { position: absolute; }\n' +
+      '.' + _o.prefix + '_title { top: 0; left: 0; text-shadow: 0 0 10px #aaa; color: white; font-size: 2em; position: absolute; font-weight: bold !important; width: 20rem; }\n' +
+      '.' + _o.prefix + '_description { top: 0; left: 0; box-shadow: 0 0 7px #666; border-radius: 7px; padding: 11px; color: white; font-size: 20px; position: absolute; width: 35rem; font-weight: normal !important; }\n' +
+      '.' + _o.prefix + '_controls { top: 0; left: 0; margin: 8px 0; text-align: right; padding: 11px; color: white; font-size: 20px; position: absolute; z-index: 10000; transition: all 0.75s; transition-timing-function: ease-in-out; }\n' +
+      '.' + _o.prefix + '_controls .btn { margin-right: 10px; box-shadow: 0 0 3px white; }\n' +
+      '#' + _o.prefix + '_targets { top: 0; left: 0; border-radius: 50%; border: 1px solid #333; position: absolute; opacity: 0.3; }\n' +
+      '.' + _o.prefix + '_target { border-radius: 50%; position: relative; height: 80%; width: 80%; top: 9%; padding: 0; margin: 0 auto; }\n' +
+      '.' + _o.prefix + '_target_small { border: 2px solid #aaa; }\n' +
+      '.' + _o.prefix + '_target_medium { border: 2px solid #666; }\n' +
+      '.' + _o.prefix + '_element_transition { transition: all 0.75s; transition-timing-function: ease-in-out; }\n' +
+      '.' + _o.prefix + '_box_transition { transition-property: top, left; transition-duration: 0.75s; transition-timing-function: ease-in-out; }\n' +
+      '@keyframes targetGlow { from { box-shadow: 0 0 1px rgba(64, 64, 64, 0.78); } to { box-shadow: 0 0 8px white; } }\n' +
+      '.' + _o.prefix + '_glow { animation-duration: 1s; animation-name: targetGlow; animation-iteration-count: infinite; animation-direction: alternate; }\n' +
+      '.' + _o.prefix + '_animation_delay1 { animation-delay: 0.3s; }\n' +
+      '.' + _o.prefix + '_animation_delay2 { animation-delay: 0.6s; }\n' +
+      '.' + _o.prefix + '_shade { overflow: hidden; transition: all 0.75s; transition-timing-function: ease-in-out; position: absolute; border-radius: 5px; }'
+    );
+  }
+
+  function textWidth() {
     var org = $(this);
     var html = $('<span>' + org.html() + '</span>');
     html.css({
@@ -337,7 +386,7 @@
     var width = html.outerWidth();
     html.remove();
     return width;
-  };
+  }
 
-  __init();
-})({});
+  return __init();
+};
