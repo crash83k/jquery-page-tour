@@ -11,8 +11,12 @@ $.fn.PageTour = function (opts) {
       nextClass : 'btn btn-primary',
       prevClass : 'btn btn-default',
       exitClass : 'btn btn-danger',
-      defaultIndex : 9999
+      defaultIndex : 9999,
+      styleOverwrites : {}
     }, opts),
+    programmatic = false,
+    programmaticNext = function () {},
+    programmaticPrev = function () {},
     dims = {},
     doms = [],
     elId = 0,
@@ -113,7 +117,7 @@ $.fn.PageTour = function (opts) {
     elements.body.append(elements.style);
 
     return {
-      rediscover : discoverDoms,
+      switchTo : switchTo,
       next : next,
       prev : prev,
       open : open,
@@ -132,7 +136,37 @@ $.fn.PageTour = function (opts) {
     }
   }
 
+  function switchTo(selector, options) {
+    if (! options) options = {};
+    programmatic = true;
+    updateTourTitle(options.title || '');
+    updateTourDesc(options.description || '');
+
+    if (options.next) {
+      programmaticNext = options.next;
+      elements.nextBtn.show();
+    } else {
+      elements.nextBtn.hide();
+    }
+    if (options.prev) {
+      elements.prevBtn.show();
+      programmaticPrev = options.prev;
+    } else {
+      elements.prevBtn.hide();
+    }
+
+    elements.tour.show();
+
+    var dom = typeof selector === 'string' ? $(selector) : selector;
+
+    doTourCalculations(dom);
+    shadowElement();
+    flowTargets();
+    flowTour(dom)
+  }
+
   function run() {
+    programmatic = false;
     updateTourTitle(doms[ elId ].attr('data-' + _o.prefix + '-title') || '');
     updateTourDesc(doms[ elId ].attr('data-' + _o.prefix + '-description') || '');
     doTourCalculations();
@@ -142,13 +176,21 @@ $.fn.PageTour = function (opts) {
   }
 
   function next() {
-    elId = elId + 1 === doms.length ? 0 : elId + 1;
-    run();
+    if (! programmatic) {
+      elId = elId + 1 === doms.length ? 0 : elId + 1;
+      run();
+    } else if (typeof programmaticNext === 'function') {
+      programmaticNext();
+    }
   }
 
   function prev() {
-    elId = elId === 0 ? doms.length - 1 : elId - 1;
-    run();
+    if (! programmatic) {
+      elId = elId === 0 ? doms.length - 1 : elId - 1;
+      run();
+    } else if (typeof programmaticPrev === 'function') {
+      programmaticPrev();
+    }
   }
 
   function exit() {
@@ -211,7 +253,10 @@ $.fn.PageTour = function (opts) {
 
   }
 
-  function flowTour() {
+  function flowTour(dom) {
+    if (! dom)
+      dom = doms[ elId ]
+
     elements.title.css({
       'left' : dims[ 'title_x' ],
       'top' : dims[ 'title_y' ]
@@ -228,7 +273,7 @@ $.fn.PageTour = function (opts) {
     });
 
     var
-      offset = doms[ elId ].offset().top - 120,
+      offset = dom.offset().top - 120,
       title = dims[ 'title_y' ] - 10;
 
     $('html, body').animate({
@@ -267,7 +312,11 @@ $.fn.PageTour = function (opts) {
    * Calculates out all the X/Y locations for where to put the title and the description/controls
    * base on the coordinates and dimensions of the show element and the tour elements.
    */
-  function doTourCalculations() {
+  function doTourCalculations(element) {
+    if (! element) {
+      element = doms[ elId ];
+    }
+
     // Get all the height/width and X/Y coordinates of all the elements involved with the tour
     // including the window viewport dimensions.
     var
@@ -280,10 +329,10 @@ $.fn.PageTour = function (opts) {
     dims[ 'descHeight' ] = descHeight;
     dims[ 'winWidth' ] = parseInt($(window).outerWidth());
     dims[ 'winHeight' ] = parseInt($(window).outerHeight());
-    dims[ 'elWidth' ] = parseInt(doms[ elId ].outerWidth());
-    dims[ 'elHeight' ] = parseInt(doms[ elId ].outerHeight());
-    dims[ 'elLeft' ] = doms[ elId ].offset().left;
-    dims[ 'elTop' ] = doms[ elId ].offset().top;
+    dims[ 'elWidth' ] = parseInt(element.outerWidth());
+    dims[ 'elHeight' ] = parseInt(element.outerHeight());
+    dims[ 'elLeft' ] = element.offset().left;
+    dims[ 'elTop' ] = element.offset().top;
     dims[ 'elCenterX' ] = dims[ 'elLeft' ] + (dims[ 'elWidth' ] / 2);
     dims[ 'elCenterY' ] = dims[ 'elTop' ] + (dims[ 'elHeight' ] / 2);
     dims[ 'topSpace' ] = dims[ 'elTop' ];
@@ -330,19 +379,34 @@ $.fn.PageTour = function (opts) {
     // Get the X/Y coordinates for the description/controls
     if (dims[ 'leftSpace' ] >= (descWidth + (_o.horizontalPadding * 2))) { // Check the left side space
       dims[ 'desc_x' ] = dims[ 'elLeft' ] - descWidth - (_o.horizontalPadding * 2);
-      dims[ 'desc_y' ] = dims[ 'title_y' ] + (_o.verticalPadding * 2) + ((titleIs === 'left') ? titleHeight + _o.verticalPadding : 0);
+      dims[ 'desc_y' ] = dims[ 'title_y' ] + (_o.verticalPadding * 2) + ((titleIs === 'left')
+          ? titleHeight + _o.verticalPadding
+          : 0
+      );
     } else if (dims[ 'rightSpace' ] >= (descWidth + (_o.horizontalPadding * 2))) { // Check the right side space
       dims[ 'desc_x' ] = dims[ 'elLeft' ] + dims[ 'elWidth' ] + _o.horizontalPadding;
-      dims[ 'desc_y' ] = dims[ 'title_y' ] + (_o.verticalPadding * 2) + ((titleIs === 'right') ? titleHeight + _o.verticalPadding : 0);
-    } else if (dims[ 'topSpace' ] >= (descHeight + (_o.verticalPadding * 4) + ((titleIs === 'top') ? titleHeight : 0)) && titleIs === 'top') { // check for space above the element
-      dims[ 'desc_y' ] = dims[ 'elTop' ] - _o.verticalPadding - descHeight - ((titleIs === 'top') ? titleHeight + _o.verticalPadding : 0);
+      dims[ 'desc_y' ] = dims[ 'title_y' ] + (_o.verticalPadding * 2) + ((titleIs === 'right')
+          ? titleHeight + _o.verticalPadding
+          : 0
+      );
+    } else if (dims[ 'topSpace' ] >= (descHeight + (_o.verticalPadding * 4) + ((titleIs === 'top')
+          ? titleHeight
+          : 0)
+      ) && titleIs === 'top') { // check for space above the element
+      dims[ 'desc_y' ] = dims[ 'elTop' ] - _o.verticalPadding - descHeight - ((titleIs === 'top')
+          ? titleHeight + _o.verticalPadding
+          : 0
+      );
       dims[ 'desc_x' ] = (dims[ 'winWidth' ] / 2) - titleWidth;
       if (titleIs === 'top') {
         dims[ 'title_y' ] -= descHeight;
       }
     } else { // Must go on the bottom.
       dims[ 'desc_x' ] = (dims[ 'winWidth' ] / 2) - descWidth;
-      dims[ 'desc_y' ] = dims[ 'elTop' ] + dims[ 'elHeight' ] + (_o.verticalPadding * 2) + ((titleIs === 'bottom') ? titleHeight + _o.verticalPadding : 0);
+      dims[ 'desc_y' ] = dims[ 'elTop' ] + dims[ 'elHeight' ] + (_o.verticalPadding * 2) + ((titleIs === 'bottom')
+          ? titleHeight + _o.verticalPadding
+          : 0
+      );
       if (titleIs === 'right') {
         dims[ 'desc_x' ] = dims[ 'title_x' ] - (descWidth * 0.25);
         dims[ 'desc_y' ] = dims[ 'desc_y' ] + _o.verticalPadding;
@@ -351,25 +415,93 @@ $.fn.PageTour = function (opts) {
   }
 
   function setupStyle() {
-    elements.style.html(
-      '#' + _o.prefix + '_tour, #' + _o.prefix + '_overlay { height: 100vh; width: 100%; }\n' +
-      '#' + _o.prefix + '_tour { position: absolute; }\n' +
-      '.' + _o.prefix + '_title { top: 0; left: 0; text-shadow: 0 0 10px #aaa; color: white; font-size: 2em; position: absolute; font-weight: bold !important; width: 20rem; }\n' +
-      '.' + _o.prefix + '_description { top: 0; left: 0; box-shadow: 0 0 7px #666; border-radius: 7px; padding: 11px; color: white; font-size: 20px; position: absolute; width: 35rem; font-weight: normal !important; }\n' +
-      '.' + _o.prefix + '_controls { top: 0; left: 0; margin: 8px 0; text-align: right; padding: 11px; color: white; font-size: 20px; position: absolute; z-index: 10000; transition: all 0.75s; transition-timing-function: ease-in-out; }\n' +
-      '.' + _o.prefix + '_controls .btn { margin-right: 10px; box-shadow: 0 0 3px white; }\n' +
-      '#' + _o.prefix + '_targets { top: 0; left: 0; border-radius: 50%; border: 1px solid #333; position: absolute; opacity: 0.3; }\n' +
-      '.' + _o.prefix + '_target { border-radius: 50%; position: relative; height: 80%; width: 80%; top: 9%; padding: 0; margin: 0 auto; }\n' +
-      '.' + _o.prefix + '_target_small { border: 2px solid #aaa; }\n' +
-      '.' + _o.prefix + '_target_medium { border: 2px solid #666; }\n' +
-      '.' + _o.prefix + '_element_transition { transition: all 0.75s; transition-timing-function: ease-in-out; }\n' +
-      '.' + _o.prefix + '_box_transition { transition-property: top, left; transition-duration: 0.75s; transition-timing-function: ease-in-out; }\n' +
-      '@keyframes targetGlow { from { box-shadow: 0 0 1px rgba(64, 64, 64, 0.78); } to { box-shadow: 0 0 8px white; } }\n' +
-      '.' + _o.prefix + '_glow { animation-duration: 1s; animation-name: targetGlow; animation-iteration-count: infinite; animation-direction: alternate; }\n' +
-      '.' + _o.prefix + '_animation_delay1 { animation-delay: 0.3s; }\n' +
-      '.' + _o.prefix + '_animation_delay2 { animation-delay: 0.6s; }\n' +
-      '.' + _o.prefix + '_shade { overflow: hidden; transition: all 0.75s; transition-timing-function: ease-in-out; position: absolute; border-radius: 5px; }'
-    );
+    var styleSheet = '';
+    var styles = {
+      'overlay' : {
+        selector : '#' + _o.prefix + '_tour, #' + _o.prefix + '_overlay',
+        style : 'height: 100vh; width: 100%;'
+      },
+      'tour' : {
+        selector : '#' + _o.prefix + '_tour',
+        style : 'position: absolute;'
+      },
+      'title' : {
+        selector : '.' + _o.prefix + '_title',
+        style : 'top: 0; left: 0; text-shadow: 0 0 10px #aaa; color: white; font-size: 2em; position: absolute; font-weight: bold !important; width: 20rem;'
+      },
+      'description' : {
+        selector : '.' + _o.prefix + '_description',
+        style : 'top: 0; left: 0; box-shadow: 0 0 7px #666; border-radius: 7px; padding: 11px; color: white; font-size: 20px; position: absolute; width: 35rem; font-weight: normal !important;'
+      },
+      'controls' : {
+        selector : '.' + _o.prefix + '_controls',
+        style : 'top: 0; left: 0; margin: 8px 0; text-align: right; padding: 11px; color: white; font-size: 20px; position: absolute; z-index: 10000; transition: all 0.75s; transition-timing-function: ease-in-out;'
+      },
+      'control_buttons' : {
+        selector : '.' + _o.prefix + '_controls .btn',
+        style : 'margin-right: 10px; box-shadow: 0 0 3px white;'
+      },
+      'targets' : {
+        selector : '#' + _o.prefix + '_targets',
+        style : 'top: 0; left: 0; border-radius: 50%; border: 1px solid #333; position: absolute; opacity: 0.3;'
+      },
+      'target_large' : {
+        selector : '.' + _o.prefix + '_target',
+        style : 'border-radius: 50%; position: relative; height: 80%; width: 80%; top: 9%; padding: 0; margin: 0 auto;'
+      },
+      'target_small' : {
+        selector : '.' + _o.prefix + '_target_small',
+        style : 'border: 2px solid #aaa;'
+      },
+      'target_medium' : {
+        selector : '.' + _o.prefix + '_target_medium',
+        style : 'border: 2px solid #666;'
+      },
+      'transitions_main' : {
+        selector : '.' + _o.prefix + '_element_transition',
+        style : 'transition: all 0.75s; transition-timing-function: ease-in-out;'
+      },
+      'transition_box' : {
+        selector : '.' + _o.prefix + '_box_transition',
+        style : 'transition-property: top, left; transition-duration: 0.75s; transition-timing-function: ease-in-out;'
+      },
+      'transition_key_frame' : {
+        selector : '@keyframes targetGlow',
+        style : 'from { box-shadow: 0 0 1px rgba(64, 64, 64, 0.78); } to { box-shadow: 0 0 8px white; }'
+      },
+      'target_glow' : {
+        selector : '.' + _o.prefix + '_glow',
+        style : 'animation-duration: 1s; animation-name: targetGlow; animation-iteration-count: infinite; animation-direction: alternate;'
+      },
+      'target_delay_1' : {
+        selector : '.' + _o.prefix + '_animation_delay1',
+        style : 'animation-delay: 0.3s;'
+      },
+      'target_delay_2' : {
+        selector : '.' + _o.prefix + '_animation_delay2',
+        style : 'animation-delay: 0.6s;'
+      },
+      'spotlight' : {
+        selector : '.' + _o.prefix + '_shade',
+        style : 'overflow: hidden; transition: all 0.75s; transition-timing-function: ease-in-out; position: absolute; border-radius: 5px;'
+      }
+    };
+
+    for (var style in styles) {
+      if (! styles.hasOwnProperty(style)) return;
+
+      styleSheet += styles[ style ].selector + ' { ';
+
+      if (_o.styleOverwrites.hasOwnProperty(style)) {
+        styleSheet += _o.styleOverwrites[ style ];
+      } else {
+        styleSheet += styles[ style ].style;
+      }
+
+      styleSheet += ' }\n';
+    }
+
+    elements.style.html(styleSheet);
   }
 
   function textWidth() {

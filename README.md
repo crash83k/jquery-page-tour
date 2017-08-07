@@ -1,7 +1,8 @@
 # jquery-page-tour
 JQuery-powered tour library that displays information about the page the user is on.
 
-This is a quick little helper to spotlight DOMs on the page. Inspiration comes from Google's Android and Web-app help screens.
+This is a quick little helper to spotlight DOMs on the page. Inspiration comes from Google's Android and Web-app help 
+screens.
 
 ## What does it do?
 This library lets you highlight DOMs on the page, and explain what their purpose is to the user.
@@ -79,12 +80,39 @@ The following options are exposed:
  - `prevClass` - [string default: 'btn btn-default'] - The class for the "previous" link.
  - `exitClass` - [string default: 'btn btn-danger'] - The class for the "exit" link.
  - `defaultIndex` - [integer default: '9999'] - The default index of items without a manually set index.
+ - `styleOverwrites` - [object default: { \<empty> }] - Provides a way to overwrite the tour styles. Keys and Defaults:
+    - `overlay` - `height: 100vh; width: 100%;`
+    - `tour` - `position: absolute;`
+    - `title` - `top: 0; left: 0; text-shadow: 0 0 10px #aaa; color: white; font-size: 2em; position: absolute; 
+    font-weight: bold !important; width: 20rem;`
+    - `description` - `top: 0; left: 0; box-shadow: 0 0 7px #666; border-radius: 7px; padding: 11px; color: white; 
+    font-size: 20px; position: absolute; width: 35rem; font-weight: normal !important;`
+    - `controls` - `top: 0; left: 0; margin: 8px 0; text-align: right; padding: 11px; color: white; font-size: 20px; 
+    position: absolute; z-index: 10000; transition: all 0.75s; transition-timing-function: ease-in-out;`
+    - `control_buttons` - `margin-right: 10px; box-shadow: 0 0 3px white;`
+    - `targets` - `top: 0; left: 0; border-radius: 50%; border: 1px solid #333; position: absolute; opacity: 0.3;`
+    - `target_large` - `border-radius: 50%; position: relative; height: 80%; width: 80%; top: 9%; padding: 0; margin: 0 
+    auto;`
+    - `target_medium` - `border: 2px solid #666;`
+    - `target_small` - `border: 2px solid #aaa;`
+    - `transitions_main` - `transition: all 0.75s; transition-timing-function: ease-in-out;`
+    - `transition_box` - `transition-property: top, left; transition-duration: 0.75s; transition-timing-function: 
+    ease-in-out;`
+    - `transition_key_frame` - `from { box-shadow: 0 0 1px rgba(64, 64, 64, 0.78); } to { box-shadow: 0 0 8px white; }`
+    - `target_glow` - `animation-duration: 1s; animation-name: targetGlow; animation-iteration-count: infinite; 
+    animation-direction: alternate;`
+    - `target_glow` - `animation-duration: 1s; animation-name: targetGlow; animation-iteration-count: infinite; 
+    animation-direction: alternate;`
+    - `target_delay_1` - `animation-delay: 0.3s;`
+    - `target_delay_2` - `overflow: hidden; transition: all 0.75s; transition-timing-function: ease-in-out; position: 
+    absolute; border-radius: 5px;`
+    - `spotlight` - `overflow: hidden; transition: all 0.75s; transition-timing-function: ease-in-out; position: 
+    absolute; border-radius: 5px;`
 
+#### Pre-Defined Page Tour HTML Attributes
+If you're not controlling the tour 100% programmatically, you can pre-define HTML DOM objects on the page for the tour.
 
-#### HTML Attributes
-
-In the HTML, for each DOM you want to add to the tour, you must add at least one attribute to the
-DOM: 
+In the HTML, each DOM you want to add to the pre-defined page tour must have at least one of the following attributes: 
  - `data-<prefix>-title`: This attribute should be assigned the title of the DOM object tour stop.
    - example: `<div data-tour-title="DIV DOM Object"></div>`
  - `data-<prefix>-description`: This attribute should be assigned the description of what the tour item is.
@@ -94,7 +122,7 @@ DOM:
    
 Both of these attributes can  (and really should) be used together. However, only one is necessary.
 
-#### Ordering Tour Stops
+##### Ordering Tour Stops
 
 To enforce an order of which tour items are stopped at, you can add the `data-<prefix>-index` attribute:
  - example: `<div data-tour-index="1"></div>`
@@ -107,23 +135,42 @@ Items without an index are actually defaulted to an index of `9999`, though that
 
 #### Programmatically Controlling the Tour
 
-The tour assigns a window-scoped dict object as `PageTour` at initialization. The `PageTour` object has 4 publicly 
+The tour assigns a window-scoped dict object as `PageTour` at initialization. The `PageTour` object has publicly 
 accessible methods:
+ - `.switchTo(selector[, options])` - Programmatically sets the tour focus, title, and description. 
+    - `selector` [jQuery Object | String] : Use a jQuery object or selector path string of DOM object to focus tour on.
+    - `options` [optional Object] - Options for the switchTo method execution:
+        - `title` [optional String] : The title of the object.
+        - `description` [optional String] : The description of the object.
+        - `next` [optional Function] : A programmatic function to fire when the **Next** button is clicked. (Hidden if omitted)
+        - `prev` [optional Function] : A programmatic function to fire when the **Previous** button is clicked. (Hidden if omitted)
  - `.open()` - Opens the tour. If the tour has previously been opened, it will open from where it was left off.
  - `.next()` - Moves the tour on to the next tour item.
  - `.prev()` - Moves the tour back to the previous tour item.
- - `.exit()` - Closes the tour.
- - `.rediscover()` - [deprecated] Rediscover any new DOMs on the page. This is not really necessary at all. Each time the tour is 
+ - `.exit()` - Closes the tour. 
  opened, the DOMs are rediscovered.
  
-The only method completely necessary for tour operation is the `.open()` method. This starts the tour.
-However, controls to proceed through the tour and exit the tour are displayed in the tour.
+The only methods completely necessary for tour operation is the `.open()` method **or** `.switchTo()` method. These 
+methods start the tour. However, controls to proceed through the tour and exit the tour are displayed in the tour.
 
-Example:
+HTML Pre-configured Example:
 ```JavaScript
 // Instantiate the tour:
 var PageTour = $.fn.PageTour();
 
 // Open the tour:
 PageTour.open();
+```
+HTML Programmatic Example:
+```JavaScript
+// Instantiate the tour:
+var PageTour = $.fn.PageTour();
+
+// Open the tour to a specific DOM object:
+PageTour.switchTo('#some_DOM', {
+  title: 'Some DOM Object',
+  description: 'This is a DOM object on the page.',
+  next: switchTo('#another_DOM', {...}),
+  next: switchTo('#a_previous_DOM', {...})
+});
 ```
