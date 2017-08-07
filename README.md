@@ -142,8 +142,8 @@ accessible methods:
     - `options` [optional Object] - Options for the switchTo method execution:
         - `title` [optional String] : The title of the object.
         - `description` [optional String] : The description of the object.
-        - `next` [optional Function] : A programmatic function to fire when the **Next** button is clicked. (Hidden if omitted)
-        - `prev` [optional Function] : A programmatic function to fire when the **Previous** button is clicked. (Hidden if omitted)
+        - `next` [optional Function] : A function to fire when the **Next** button is clicked. (Hidden if omitted)
+        - `prev` [optional Function] : A function to fire when the **Previous** button is clicked. (Hidden if omitted)
  - `.open()` - Opens the tour. If the tour has previously been opened, it will open from where it was left off.
  - `.next()` - Moves the tour on to the next tour item.
  - `.prev()` - Moves the tour back to the previous tour item.
