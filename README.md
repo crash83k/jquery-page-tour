@@ -170,7 +170,7 @@ var PageTour = $.fn.PageTour();
 PageTour.switchTo('#some_DOM', {
   title: 'Some DOM Object',
   description: 'This is a DOM object on the page.',
-  next: switchTo('#another_DOM', {...}),
-  next: switchTo('#a_previous_DOM', {...})
+  next: PageTour.switchTo('#another_DOM', {...}),
+  next: PageTour.switchTo('#a_previous_DOM', {...})
 });
 ```
