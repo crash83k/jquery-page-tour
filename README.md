@@ -117,7 +117,7 @@ In the HTML, each DOM you want to add to the pre-defined page tour must have at 
    - example: `<div data-tour-title="DIV DOM Object"></div>`
  - `data-<prefix>-description`: This attribute should be assigned the description of what the tour item is.
    - example: `<div data-tour-description="This is a DIV HTML object. It's used to be a container for other DOMs"></div>`
-
+next
 **Note:** In our examples, the prefix is the default "tour" prefix.
    
 Both of these attributes can  (and really should) be used together. However, only one is necessary.
@@ -171,6 +171,6 @@ PageTour.switchTo('#some_DOM', {
   title: 'Some DOM Object',
   description: 'This is a DOM object on the page.',
   next: PageTour.switchTo('#another_DOM', {...}),
-  next: PageTour.switchTo('#a_previous_DOM', {...})
+  prev: PageTour.switchTo('#a_previous_DOM', {...})
 });
 ```
